@@ -556,7 +556,10 @@
 
     function update() {
         document.getElementById('pvCP').innerText    = document.getElementById('inCP').value    || "닉네임을 입력하세요";
-        document.getElementById('pvGenre').innerText = document.getElementById('inGenre').value || "장르 / 캐릭터";
+        const genreRaw = document.getElementById('inGenre').value || "장르 / 캐릭터";
+        document.getElementById('pvGenre').innerHTML = genreRaw
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\s*\/\s*/g, '&nbsp;&nbsp;/&nbsp;');
         document.getElementById('pvDate').innerText  = document.getElementById('inDate').value  || "-";
 
         const typeVal = document.querySelector('input[name="inType"]:checked')?.value || 'HL';
