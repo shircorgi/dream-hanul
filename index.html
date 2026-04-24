@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>드림러 트친소 시트 생성기</title>
-    <meta property="og:title" content="드친소 시트 생성기 ver.1.0.0"/>
+    <meta property="og:title" content="드친소 시트 생성기 Beta"/>
     <meta property="og:description" content="드친소를 간편하게 해보아요"/>
     <meta property="og:image" content="https://dream-hanul.vercel.app/thumbnail.png"/>
     <meta property="og:url" content="https://dream-hanul.vercel.app"/>
@@ -191,8 +191,9 @@
             padding: 70px 35px 40px 35px;
         }
 
-        .tag-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .tag { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; }
+        .tag-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+        .tag { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; line-height: 1; }
+        #pvScopeTags { display: contents; }
         .type-tag { background: var(--p-pink); color: #d63384; }
         .scope-tag { background: var(--p-green); color: #087f5b; }
 
