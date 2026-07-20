@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>드림러 트친소 시트 생성기</title>
+    <title>드림러 드친소 시트 생성기</title>
     <meta property="og:title" content="드친소 시트 생성기 Beta"/>
     <meta property="og:description" content="드친소를 간편하게 해보아요"/>
     <meta property="og:image" content="https://dream-hanul.vercel.app/thumbnail.png"/>
@@ -108,9 +108,74 @@
         #inScope_open:checked + label { background: #D1F2EB; color: #087f5b; border-color: #80d8c0; }
         #inScope_only:checked + label { background: #E8DFF5; color: #6c40bd; border-color: #c0a0e8; }
 
-        /* 1T1D 라디오 색상 */
-        #in1t1d_yes:checked + label { background: #FFF0E0; color: #c96a00; border-color: #f4b878; }
-        #in1t1d_no:checked  + label { background: #EBEBEB; color: #555555; border-color: #bbbbbb; }
+        /* 1T1D 라디오 색상 — O/X 모두 O(주황) 색상 유지 */
+        #in1t1d_yes:checked + label,
+        #in1t1d_no:checked  + label { background: #FFF0E0; color: #c96a00; border-color: #f4b878; }
+
+        /* 이입·비이입 라디오 색상 — 이입/비이입 모두 이입(라벤더) 색상 유지 */
+        #inImmerse_yes:checked + label,
+        #inImmerse_no:checked  + label { background: #E8DFF5; color: #6c40bd; border-color: #c0a0e8; }
+
+        /* --- 성향 설정 묶음 박스 --- */
+        .pref-group {
+            background: #F8F9FB;
+            border: 1.5px solid #EDF0F4;
+            border-radius: 16px;
+            padding: 20px 20px 6px;
+        }
+        .pref-group > .pref-group-title {
+            font-size: 15px;
+            font-weight: 800;
+            color: #555;
+            margin-bottom: 18px;
+        }
+        .pref-row { margin-bottom: 18px; }
+        .pref-row .pref-label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 700;
+            font-size: 13px;
+            color: #888;
+        }
+
+        /* --- 이미지 크기조절 슬라이더 --- */
+        .size-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .size-control span { font-size: 12px; font-weight: 700; color: #888; white-space: nowrap; }
+        .size-control input[type="range"] { flex: 1; accent-color: var(--text-dark); cursor: pointer; }
+
+        /* --- 트윗 성향 기타 커스텀 칩 --- */
+        .custom-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+        .custom-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 6px 8px 6px 12px;
+            border-radius: 16px;
+            background: #FFF5BA;
+            color: #9a7800;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .custom-chip button {
+            border: none;
+            background: rgba(154,120,0,0.18);
+            color: #9a7800;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            font-size: 12px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
 
         /* --- 프리뷰 --- */
         .preview-panel {
@@ -193,7 +258,7 @@
 
         .tag-row { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
         .tag { padding: 5px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; display: inline-flex; align-items: center; line-height: 1; }
-        #pvScopeTags { display: contents; }
+        #pvScopeTags, #pvTypeTags { display: contents; }
         .type-tag { background: var(--p-pink); color: #d63384; }
         .scope-tag { background: var(--p-green); color: #087f5b; }
 
@@ -201,6 +266,7 @@
         .sheet-cp { font-size: 16px; color: #636e72; margin-bottom: 25px; border-bottom: 1px solid #f1f1f1; padding-bottom: 15px; }
 
         .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .info-grid.single { grid-template-columns: 1fr; }
         .info-item b { display: block; font-size: 10px; color: #b2bec3; letter-spacing: 1px; margin-bottom: 5px; }
         .info-item span { font-size: 14px; font-weight: 600; }
 
@@ -266,16 +332,24 @@
 
 <div class="container">
     <div class="input-panel">
-        <h2>트친소 시트 설정</h2>
+        <h2>드친소 시트 설정</h2>
 
         <div class="form-group">
             <label>헤더 이미지 (파일 선택)</label>
             <input type="file" accept="image/*" onchange="loadHeader(event)">
+            <div class="size-control" id="headerSizeControl" style="display:none;">
+                <span>크기</span>
+                <input type="range" id="headerSize" min="100" max="300" value="100" oninput="resizeImage('header')">
+            </div>
         </div>
 
         <div class="form-group">
             <label>프로필 이미지 (파일 선택)</label>
             <input type="file" accept="image/*" onchange="loadProfile(event)">
+            <div class="size-control" id="profileSizeControl" style="display:none;">
+                <span>크기</span>
+                <input type="range" id="profileSize" min="100" max="300" value="100" oninput="resizeImage('profile')">
+            </div>
         </div>
 
         <div class="form-group">
@@ -289,36 +363,50 @@
         </div>
 
         <div class="form-group">
-            <label>드림 성향</label>
+            <label>드림 성향 (다중 선택)</label>
             <div class="chip-group">
-                <input type="radio" name="inType" id="inType_HL"  value="HL"  checked onchange="update()">
+                <input type="checkbox" id="inType_HL"  value="HL"  checked onchange="update()">
                 <label for="inType_HL">HL</label>
-                <input type="radio" name="inType" id="inType_BL"  value="BL"  onchange="update()">
+                <input type="checkbox" id="inType_BL"  value="BL"  onchange="update()">
                 <label for="inType_BL">BL</label>
-                <input type="radio" name="inType" id="inType_GL"  value="GL"  onchange="update()">
+                <input type="checkbox" id="inType_GL"  value="GL"  onchange="update()">
                 <label for="inType_GL">GL</label>
-                <input type="radio" name="inType" id="inType_NCP" value="NCP" onchange="update()">
+                <input type="checkbox" id="inType_NCP" value="NCP" onchange="update()">
                 <label for="inType_NCP">NCP</label>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>오픈·온리 범위</label>
-            <div class="chip-group">
-                <input type="radio" name="inScope" id="inScope_open" value="오픈" onchange="update()">
-                <label for="inScope_open">오픈</label>
-                <input type="radio" name="inScope" id="inScope_only" value="온리" onchange="update()">
-                <label for="inScope_only">온리</label>
-            </div>
-        </div>
+        <div class="form-group pref-group">
+            <label class="pref-group-title">성향 설정</label>
 
-        <div class="form-group">
-            <label>1T1D 배려</label>
-            <div class="chip-group">
-                <input type="radio" name="in1t1d" id="in1t1d_yes" value="⭕️" onchange="update()">
-                <label for="in1t1d_yes">⭕️</label>
-                <input type="radio" name="in1t1d" id="in1t1d_no" value="❌" onchange="update()">
-                <label for="in1t1d_no">❌</label>
+            <div class="pref-row">
+                <span class="pref-label">오픈·온리 범위</span>
+                <div class="chip-group">
+                    <input type="radio" name="inScope" id="inScope_open" value="오픈" onchange="update()">
+                    <label for="inScope_open">오픈</label>
+                    <input type="radio" name="inScope" id="inScope_only" value="온리" onchange="update()">
+                    <label for="inScope_only">온리</label>
+                </div>
+            </div>
+
+            <div class="pref-row">
+                <span class="pref-label">1T1D 배려</span>
+                <div class="chip-group">
+                    <input type="radio" name="in1t1d" id="in1t1d_yes" value="⭕️" onchange="update()">
+                    <label for="in1t1d_yes">⭕️</label>
+                    <input type="radio" name="in1t1d" id="in1t1d_no" value="❌" onchange="update()">
+                    <label for="in1t1d_no">❌</label>
+                </div>
+            </div>
+
+            <div class="pref-row">
+                <span class="pref-label">이입·비이입</span>
+                <div class="chip-group">
+                    <input type="radio" name="inImmerse" id="inImmerse_yes" value="이입" onchange="update()">
+                    <label for="inImmerse_yes">이입</label>
+                    <input type="radio" name="inImmerse" id="inImmerse_no" value="비이입" onchange="update()">
+                    <label for="inImmerse_no">비이입</label>
+                </div>
             </div>
         </div>
 
@@ -328,13 +416,13 @@
         </div>
 
         <div class="form-group">
-            <label>주력 장르 / 드림 (CP명)</label>
+            <label>주력 장르 / 드림 (페어명)</label>
             <input type="text" id="inGenre" placeholder="예: FFXIV / Werenville" oninput="update()">
         </div>
 
         <div class="form-group">
-            <label>기념일</label>
-            <input type="text" id="inDate" placeholder="예: 2025.04.25" oninput="update()">
+            <label>기념일 (선택)</label>
+            <input type="text" id="inDate" placeholder="입력 시에만 카드에 표시됩니다 (예: 2025.04.25)" oninput="update()">
         </div>
 
         <div class="form-group">
@@ -349,6 +437,8 @@
                 <input type="checkbox" id="ex_heart" value="마음" onchange="update()">
                 <label for="ex_heart">마음</label>
             </div>
+            <input type="text" id="exEtcInput" placeholder="기타 입력 후 Enter로 추가" onkeydown="addExTag(event)" style="margin-top:10px;">
+            <div class="custom-tags" id="exCustomTags"></div>
         </div>
 
         <div class="form-group">
@@ -367,6 +457,8 @@
                 <input type="checkbox" id="tw_buy" value="소비" onchange="update()">
                 <label for="tw_buy">소비</label>
             </div>
+            <input type="text" id="twEtcInput" placeholder="기타 입력 후 Enter로 추가" onkeydown="addTweetTag(event)" style="margin-top:10px;">
+            <div class="custom-tags" id="twCustomTags"></div>
         </div>
 
         <div class="form-group">
@@ -395,15 +487,16 @@
 
             <div class="sheet-body">
                 <div class="tag-row">
-                    <span class="tag type-tag" id="pvType">HL</span>
+                    <span id="pvTypeTags"></span>
                     <span id="pvScopeTags"></span>
+                    <span class="tag" id="pvImmerse" style="display:none;"></span>
                     <span class="tag" id="pvOneToOne" style="display:none;"></span>
                 </div>
                 <div class="sheet-title" id="pvCP">닉네임을 입력하세요</div>
                 <div class="sheet-cp" id="pvGenre">장르 / 캐릭터</div>
 
-                <div class="info-grid">
-                    <div class="info-item"><b>ANNIVERSARY</b><span id="pvDate">-</span></div>
+                <div class="info-grid" id="pvInfoGrid">
+                    <div class="info-item" id="pvDateItem" style="display:none;"><b>ANNIVERSARY</b><span id="pvDate">-</span></div>
                     <div class="info-item"><b>SOCIAL STYLE</b><span id="pvExchange">-</span></div>
                 </div>
 
@@ -432,16 +525,56 @@
 <script>
     // ===== 이미지 로드 & 크기 계산 (wwm-mutual 방식) =====
 
-    function fitImage(img, containerW, containerH) {
-        const scale = Math.max(containerW / img.naturalWidth, containerH / img.naturalHeight);
-        const rw = Math.round(img.naturalWidth  * scale);
-        const rh = Math.round(img.naturalHeight * scale);
-        img.style.width  = rw + 'px';
-        img.style.height = rh + 'px';
-        img._left = Math.round((containerW - rw) / 2);
-        img._top  = Math.round((containerH - rh) / 2);
+    // 컨테이너의 "실제 보이는 영역"(clientWidth/Height, 테두리 제외)을 기준으로
+    // 꽉 채우는 최소 배율을 _baseScale로 저장하고, _zoom 배율로 확대
+    function fitImage(img, container) {
+        img._baseScale = Math.max(
+            container.clientWidth  / img.naturalWidth,
+            container.clientHeight / img.naturalHeight
+        );
+        img._zoom = 1;
+        renderImageSize(img, container, false);
+    }
+
+    // 현재 배율(_baseScale * _zoom)로 크기 반영. keepCenter=true면 컨테이너 중심 기준 유지
+    function renderImageSize(img, container, keepCenter) {
+        const cw = container.clientWidth, ch = container.clientHeight;
+        const newW = Math.round(img.naturalWidth  * img._baseScale * img._zoom);
+        const newH = Math.round(img.naturalHeight * img._baseScale * img._zoom);
+
+        if (keepCenter) {
+            const oldW = img.offsetWidth  || newW;
+            const oldH = img.offsetHeight || newH;
+            const fx = (cw / 2 - (img._left || 0)) / oldW;
+            const fy = (ch / 2 - (img._top  || 0)) / oldH;
+            img._left = Math.round(cw / 2 - fx * newW);
+            img._top  = Math.round(ch / 2 - fy * newH);
+        } else {
+            img._left = Math.round((cw - newW) / 2);
+            img._top  = Math.round((ch - newH) / 2);
+        }
+
+        img.style.width  = newW + 'px';
+        img.style.height = newH + 'px';
+        clampImage(img, container);
+    }
+
+    function clampImage(img, container) {
+        const cw = container.clientWidth, ch = container.clientHeight;
+        img._left = Math.max(cw - img.offsetWidth,  Math.min(0, img._left || 0));
+        img._top  = Math.max(ch - img.offsetHeight, Math.min(0, img._top  || 0));
         img.style.left = img._left + 'px';
         img.style.top  = img._top  + 'px';
+    }
+
+    function resizeImage(which) {
+        const isHeader = which === 'header';
+        const img = document.getElementById(isHeader ? 'pvHeaderImg' : 'pvProfileImg');
+        if (!img) return;
+        const container = document.getElementById(isHeader ? 'pvHeader' : 'pvProfile');
+        const slider = document.getElementById(isHeader ? 'headerSize' : 'profileSize');
+        img._zoom = parseInt(slider.value, 10) / 100;
+        renderImageSize(img, container, true);
     }
 
     function loadHeader(e) {
@@ -458,7 +591,9 @@
             }
             img.src = ev.target.result;
             img.onload = function() {
-                fitImage(img, header.offsetWidth, header.offsetHeight);
+                fitImage(img, header);
+                document.getElementById('headerSize').value = 100;
+                document.getElementById('headerSizeControl').style.display = 'flex';
                 const hint = document.getElementById('headerDragHint');
                 hint.style.opacity = '1';
                 setTimeout(() => { hint.style.opacity = '0'; }, 2000);
@@ -481,7 +616,9 @@
             }
             img.src = ev.target.result;
             img.onload = function() {
-                fitImage(img, profile.offsetWidth, profile.offsetHeight);
+                fitImage(img, profile);
+                document.getElementById('profileSize').value = 100;
+                document.getElementById('profileSizeControl').style.display = 'flex';
             };
         };
         reader.readAsDataURL(file);
@@ -500,7 +637,7 @@
 
         function clampPos(img) {
             const c = getContainer(img.id);
-            const cw = c.offsetWidth, ch = c.offsetHeight;
+            const cw = c.clientWidth, ch = c.clientHeight;
             img._left = Math.max(cw - img.offsetWidth,  Math.min(0, img._left || 0));
             img._top  = Math.max(ch - img.offsetHeight, Math.min(0, img._top  || 0));
             img.style.left = img._left + 'px';
@@ -553,6 +690,74 @@
         '오픈': { bg: '#D1F2EB', color: '#087f5b' },
         '온리': { bg: '#E8DFF5', color: '#6c40bd' },
     };
+    const IMMERSE_COLORS = {
+        '이입':  { bg: '#E8DFF5', color: '#6c40bd' },
+        '비이입': { bg: '#EBEBEB', color: '#555555' },
+    };
+
+    function escapeHtml(s) {
+        return s.replace(/&/g,'&amp;').replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // 엔터 → 뱃지 추가. 한글 IME 조합 중(isComposing)이면 조합이 확정된 다음 처리해서
+    // 마지막 글자가 입력칸에 남거나 중복 생성되는 문제를 방지
+    function handleTagEnter(e, commit) {
+        if (e.key !== 'Enter') return;
+        if (e.isComposing) { setTimeout(commit, 0); return; }
+        e.preventDefault();
+        commit();
+    }
+
+    // ===== 트윗 성향 기타 (엔터 → 뱃지) =====
+    let customTweetTags = [];
+    function addTweetTag(e) { handleTagEnter(e, commitTweetTag); }
+    function commitTweetTag() {
+        const input = document.getElementById('twEtcInput');
+        const val = input.value.trim();
+        if (val && !customTweetTags.includes(val)) {
+            customTweetTags.push(val);
+            renderCustomTweetTags();
+            update();
+        }
+        input.value = '';
+    }
+    function removeTweetTag(idx) {
+        customTweetTags.splice(idx, 1);
+        renderCustomTweetTags();
+        update();
+    }
+    function renderCustomTweetTags() {
+        document.getElementById('twCustomTags').innerHTML = customTweetTags.map((t, i) =>
+            `<span class="custom-chip">${escapeHtml(t)}` +
+            `<button type="button" onclick="removeTweetTag(${i})">&times;</button></span>`
+        ).join('');
+    }
+
+    // ===== 교류 스타일 기타 (엔터 → 뱃지) =====
+    let customExTags = [];
+    function addExTag(e) { handleTagEnter(e, commitExTag); }
+    function commitExTag() {
+        const input = document.getElementById('exEtcInput');
+        const val = input.value.trim();
+        if (val && !customExTags.includes(val)) {
+            customExTags.push(val);
+            renderCustomExTags();
+            update();
+        }
+        input.value = '';
+    }
+    function removeExTag(idx) {
+        customExTags.splice(idx, 1);
+        renderCustomExTags();
+        update();
+    }
+    function renderCustomExTags() {
+        document.getElementById('exCustomTags').innerHTML = customExTags.map((t, i) =>
+            `<span class="custom-chip">${escapeHtml(t)}` +
+            `<button type="button" onclick="removeExTag(${i})">&times;</button></span>`
+        ).join('');
+    }
 
     function update() {
         document.getElementById('pvCP').innerText    = document.getElementById('inCP').value    || "닉네임을 입력하세요";
@@ -560,26 +765,48 @@
         document.getElementById('pvGenre').innerHTML = genreRaw
             .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
             .replace(/\s*\/\s*/g, '&nbsp;&nbsp;/&nbsp;');
-        document.getElementById('pvDate').innerText  = document.getElementById('inDate').value  || "-";
+        const dateVal = document.getElementById('inDate').value.trim();
+        const dateItem = document.getElementById('pvDateItem');
+        const infoGrid = document.getElementById('pvInfoGrid');
+        if (dateVal) {
+            document.getElementById('pvDate').innerText = dateVal;
+            dateItem.style.display = '';
+            infoGrid.classList.remove('single');
+        } else {
+            dateItem.style.display = 'none';
+            infoGrid.classList.add('single');
+        }
 
-        const typeVal = document.querySelector('input[name="inType"]:checked')?.value || 'HL';
-        const pvType = document.getElementById('pvType');
-        pvType.innerText = typeVal;
-        pvType.style.background = TYPE_COLORS[typeVal].bg;
-        pvType.style.color      = TYPE_COLORS[typeVal].color;
+        const typeVals = getChecked(['inType_HL','inType_BL','inType_GL','inType_NCP']);
+        document.getElementById('pvTypeTags').innerHTML = typeVals
+            .map(v => `<span class="tag type-tag" style="background:${TYPE_COLORS[v].bg};color:${TYPE_COLORS[v].color};">${v}</span>`)
+            .join('');
 
         const scopeVal = document.querySelector('input[name="inScope"]:checked')?.value;
         document.getElementById('pvScopeTags').innerHTML = scopeVal
             ? `<span class="tag" style="background:${SCOPE_COLORS[scopeVal].bg};color:${SCOPE_COLORS[scopeVal].color};">${scopeVal}</span>`
             : '';
 
+        const immerseVal = document.querySelector('input[name="inImmerse"]:checked')?.value;
+        const pvImmerse = document.getElementById('pvImmerse');
+        if (immerseVal) {
+            pvImmerse.style.display = '';
+            // 이입/비이입 모두 이입 색상(라벤더) 유지
+            pvImmerse.style.background = IMMERSE_COLORS['이입'].bg;
+            pvImmerse.style.color      = IMMERSE_COLORS['이입'].color;
+            pvImmerse.innerText = immerseVal;
+        } else {
+            pvImmerse.style.display = 'none';
+        }
+
         const oneToOne = document.querySelector('input[name="in1t1d"]:checked')?.value;
         const pvOneToOne = document.getElementById('pvOneToOne');
         if (oneToOne) {
             pvOneToOne.style.display = '';
             const isYes = oneToOne === '⭕️';
-            pvOneToOne.style.background = isYes ? '#FFF0E0' : '#EBEBEB';
-            pvOneToOne.style.color      = isYes ? '#c96a00' : '#555555';
+            // O/X 모두 O 색상(주황) 유지
+            pvOneToOne.style.background = '#FFF0E0';
+            pvOneToOne.style.color      = '#c96a00';
             const symbol = isYes
                 ? `<span style="display:inline-block;width:13px;height:13px;border-radius:50%;border:2.5px solid #e53e3e;flex-shrink:0;"></span>`
                 : `<span style="display:inline-block;font-size:13px;line-height:1;color:#e53e3e;font-weight:900;">&#x2715;</span>`;
@@ -598,12 +825,13 @@
         etcWrap.style.display = etcVal ? '' : 'none';
         document.getElementById('pvEtc').innerText = etcVal;
 
-        const tweetSel = getChecked(['tw_rt','tw_sub','tw_art','tw_text','tw_story','tw_buy']);
+        const tweetSel = getChecked(['tw_rt','tw_sub','tw_art','tw_text','tw_story','tw_buy'])
+            .concat(customTweetTags);
         document.getElementById('pvTweetStyle').innerHTML = tweetSel.length
-            ? tweetSel.map(v => `<span class="mini-tag yellow">${v}</span>`).join('')
+            ? tweetSel.map(v => `<span class="mini-tag yellow">${escapeHtml(v)}</span>`).join('')
             : '<span style="font-size:13px;color:#b2bec3;">-</span>';
 
-        const exSel = getChecked(['ex_rt','ex_quote','ex_mention','ex_heart']);
+        const exSel = getChecked(['ex_rt','ex_quote','ex_mention','ex_heart']).concat(customExTags);
         document.getElementById('pvExchange').innerText = exSel.length ? exSel.join(' / ') : '-';
 
         const creditH = document.getElementById('inCreditHeader').value.trim();
